@@ -155,7 +155,7 @@ def set_cpu_to_swap_partition(cpus):
     NUM_CORES = 32
     c_mask = (ctypes.c_int * NUM_CORES)()
     for i in range(NUM_CORES):
-        c_mask[i] = cpus[i]
+        c_mask[i] = int(cpus[i])
 
     syscall(SYS_SET_CPU_TO_SWAP_PARTITION, ctypes.cast(c_mask, ctypes.POINTER(ctypes.c_int)))
 

@@ -145,8 +145,7 @@ SYSCALL_DEFINE1(set_cpu_to_swap_partition, int __user *, mask_usr)
 	set_cpu_to_swap_partition(mask);
 	printk("cpu to swap partition set to: ");
 	for (i = 0; i < num_online_cpus(); i++)
-		if (mask[i])
-			printk("%d ", i);
+		printk("%d -> %d\n", i, mask[i]);
 	printk("\n");
 	return 0;
 }
