@@ -32,6 +32,17 @@ static inline void set_slotcache_cpumask(int *mask)
 		slotcache_cpumask[i] = mask[i];
 }
 
+/* cpu to swap partition */
+extern struct swap_info_struct *cpu_to_swap_partition[128];
+extern struct swap_info_struct *swap_partitions[128];
+
+static inline void set_cpu_to_swap_partition(int *cpu_to_swap)
+{
+	int i;
+	for (i = 0; i < num_online_cpus(); i++)
+		cpu_to_swap_partition[i] = swap_partitions[cpu_to_swap[i]];
+}
+
 extern swp_entry_t *__canvas_page_entries;
 
 static inline bool reserve_swp_entry_enabled(void)

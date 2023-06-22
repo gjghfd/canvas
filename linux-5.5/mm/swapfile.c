@@ -49,7 +49,8 @@
 #include <linux/swap_stats.h>
 // Change the maping to cgroup to swap-parition later.
 // setted in each swapon -> .. -> enable_swap_info -> setup_swap_info
-static struct swap_info_struct *cpu_to_swap_partition[128];
+struct swap_info_struct *cpu_to_swap_partition[128];
+struct swap_info_struct *swap_partitions[128];
 
 // The global id of isolated swap partition, count from 0.
 // swapon can't be invoked parallelly, MT safe.
@@ -1066,49 +1067,54 @@ exit:
 
 /**
  * Set the core/cgroup to swap partition mapping.
- * A fixed mapping right now.
  */
 static void set_swapfile_affinity(struct swap_info_struct *p)
 {
 	int i;
 
+	swap_partitions[isolated_swap_partition_id] = p;
 	p->isolated_id =
 		isolated_swap_partition_id++; // a global counter. decrease it during swapfile unmount
 
+	if (p->isolated_id < 16) {
+		int cpu_id = p->isolated_id;
+		cpu_to_swap_partition[cpu_id] = p;
+		cpu_to_swap_partition[cpu_id + 16] = p;
+	}
 	// mapping for Canvas experiments
 	// #1, Node-0, snappy
 	// #2, Node-0, memcached
 	// #3, Node-0, xgboost
 	// #4, Node-1, spark
 	// the rest of cores use the default shared partition
-	if (p->isolated_id == 0) {
-		int num_memcached_cores = 4;
-		int memcached_cores[4] = { 18, 19, 38, 39 };
-		for (i = 0; i < num_memcached_cores; i++) {
-			cpu_to_swap_partition[memcached_cores[i]] = p;
-		}
-	} else if (p->isolated_id == 1) {
-		int num_sparkTC_cores = 16;
-		int sparkTC_cores[16] = { 1, 2,	 3,  4,	 5,  6,	 7,  8,
-					  9, 10, 11, 12, 13, 14, 15, 16 };
-		for (i = 0; i < num_sparkTC_cores; i++) {
-			cpu_to_swap_partition[sparkTC_cores[i]] = p;
-		}
-	} else if (p->isolated_id == 2) {
-		int num_sparkLR_cores = 16;
-		int sparkLR_cores[16] = { 21, 22, 23, 24, 25, 26, 27, 28,
-					  29, 30, 31, 32, 33, 34, 35, 36 };
-		for (i = 0; i < num_sparkLR_cores; i++) {
-			cpu_to_swap_partition[sparkLR_cores[i]] = p;
-		}
-	} else if (p->isolated_id == 3) {
-		int num_sparkKM_cores = 16;
-		int sparkKM_cores[16] = { 61, 62, 63, 64, 65, 66, 67, 68,
-					  69, 70, 71, 72, 73, 74, 75, 76 };
-		for (i = 0; i < num_sparkKM_cores; i++) {
-			cpu_to_swap_partition[sparkKM_cores[i]] = p;
-		}
-	}
+	// if (p->isolated_id == 0) {
+	// 	int num_memcached_cores = 4;
+	// 	int memcached_cores[4] = { 18, 19, 38, 39 };
+	// 	for (i = 0; i < num_memcached_cores; i++) {
+	// 		cpu_to_swap_partition[memcached_cores[i]] = p;
+	// 	}
+	// } else if (p->isolated_id == 1) {
+	// 	int num_sparkTC_cores = 16;
+	// 	int sparkTC_cores[16] = { 1, 2,	 3,  4,	 5,  6,	 7,  8,
+	// 				  9, 10, 11, 12, 13, 14, 15, 16 };
+	// 	for (i = 0; i < num_sparkTC_cores; i++) {
+	// 		cpu_to_swap_partition[sparkTC_cores[i]] = p;
+	// 	}
+	// } else if (p->isolated_id == 2) {
+	// 	int num_sparkLR_cores = 16;
+	// 	int sparkLR_cores[16] = { 21, 22, 23, 24, 25, 26, 27, 28,
+	// 				  29, 30, 31, 32, 33, 34, 35, 36 };
+	// 	for (i = 0; i < num_sparkLR_cores; i++) {
+	// 		cpu_to_swap_partition[sparkLR_cores[i]] = p;
+	// 	}
+	// } else if (p->isolated_id == 3) {
+	// 	int num_sparkKM_cores = 16;
+	// 	int sparkKM_cores[16] = { 61, 62, 63, 64, 65, 66, 67, 68,
+	// 				  69, 70, 71, 72, 73, 74, 75, 76 };
+	// 	for (i = 0; i < num_sparkKM_cores; i++) {
+	// 		cpu_to_swap_partition[sparkKM_cores[i]] = p;
+	// 	}
+	// }
 }
 
 /**

@@ -24,4 +24,6 @@ asmlinkage long sys_syscall_rswap_set_proc(void __user *info, char __user *names
 
 asmlinkage long sys_set_slotcache_cpumask(int __user *mask);
 asmlinkage long sys_set_swap_isolated(int enable);
+
+asmlinkage long sys_set_cpu_to_swap_partion(int __user *mask);
 #endif // _LINUX_EXTENDED_SYSCALLS_H

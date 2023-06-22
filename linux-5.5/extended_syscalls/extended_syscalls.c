@@ -136,3 +136,17 @@ SYSCALL_DEFINE1(set_swap_isolated, int, enable)
 	printk("swap partition isolation: %s\n", enable ? "enabled" : "disabled");
 	return 0;
 }
+
+SYSCALL_DEFINE1(set_cpu_to_swap_partition, int __user *, mask_usr)
+{
+	int i;
+	int mask[ADC_MAX_NUM_CORES];
+	copy_from_user(mask, mask_usr, num_online_cpus() * sizeof(int));
+	set_cpu_to_swap_partition(mask);
+	printk("cpu to swap partition set to: ");
+	for (i = 0; i < num_online_cpus(); i++)
+		if (mask[i])
+			printk("%d ", i);
+	printk("\n");
+	return 0;
+}

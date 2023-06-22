@@ -379,6 +379,8 @@
 # swap RDMA scheduler control
 462	common	syscall_scheduler_set_policy	__x64_sys_syscall_scheduler_set_policy
 463	common	syscall_rswap_set_proc	__x64_sys_syscall_rswap_set_proc
+# cpu to swap partition
+464	common	set_cpu_to_swap_partition	__x64_sys_set_cpu_to_swap_partition
 
 #
 # x32-specific system call numbers start at 512 to avoid cache impact
