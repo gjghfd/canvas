@@ -39,8 +39,10 @@ extern struct swap_info_struct *swap_partitions[128];
 static inline void set_cpu_to_swap_partition(int *cpu_to_swap)
 {
 	int i;
+	spin_lock(&swap_lock);
 	for (i = 0; i < num_online_cpus(); i++)
 		cpu_to_swap_partition[i] = swap_partitions[cpu_to_swap[i]];
+	spin_unlock(&swap_lock);
 }
 
 extern swp_entry_t *__canvas_page_entries;
