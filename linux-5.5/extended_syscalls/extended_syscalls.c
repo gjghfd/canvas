@@ -143,9 +143,8 @@ SYSCALL_DEFINE1(set_cpu_to_swap_partition, int __user *, mask_usr)
 	int mask[ADC_MAX_NUM_CORES];
 	copy_from_user(mask, mask_usr, num_online_cpus() * sizeof(int));
 	set_cpu_to_swap_partition(mask);
-	printk("cpu to swap partition set to: ");
+	printk("cpu to swap partition set to:\n");
 	for (i = 0; i < num_online_cpus(); i++)
 		printk("%d -> %d\n", i, mask[i]);
-	printk("\n");
 	return 0;
 }

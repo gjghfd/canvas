@@ -39,6 +39,7 @@ extern struct swap_info_struct *swap_partitions[128];
 static inline void set_cpu_to_swap_partition(int *cpu_to_swap)
 {
 	int i;
+	extern spinlock_t swap_lock;
 	spin_lock(&swap_lock);
 	for (i = 0; i < num_online_cpus(); i++)
 		cpu_to_swap_partition[i] = swap_partitions[cpu_to_swap[i]];
